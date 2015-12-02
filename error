@@ -1,0 +1,7 @@
+dhcp-18-111-121-212:newsfilter Cat$ git push origin master
+Counting objects: 379, done.
+Delta compression using up to 4 threads.
+Compressing objects: 100% (375/375), done.
+remote: fatal: pack exceeds maximum allowed size
+error: pack-objects died of signal 13
+error: failed to push some refs to 'git@github.com:sbchou/SortingHat.git'
