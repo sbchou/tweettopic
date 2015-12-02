@@ -47,16 +47,13 @@
         aria-valuemin="0" aria-valuemax="100" style="width:{{percent_complete}}%">
         <span class>{{completeCount}}</span>
       </div>  
-    </div> 
-
-    <!--
+    </div>  
  
     {{#if isAdmin}}
         <bold>Admin</bold>: do you want to add more entries?
         <input type="file" id="files" name="files[]" multiple />
         <output id="list"></output> 
     {{/if}} 
-  -->
 
     {{#if noEntries}}
       <center>
@@ -100,8 +97,7 @@
        
       </center>
 
-    {{else}} <!-- allDone -->
-      <center><h1> Is this tweet about the election? </h1></center>
+    {{else}} <!-- allDone --> 
       <!-- otherwise business as usual -->
 
       {{#each tweets}}  
@@ -125,14 +121,15 @@
  
 <template name="tweet">
 
-  <ul class="tweet {{selected}}">   
-    {{Tid}}
+  <center><h1> Is this tweet about {{Topic}} ?</h1></center>
+
+  <ul class="tweet {{selected}}">    
     <script> 
       twttr.ready(
 
         function (twttr) {
           twttr.widgets.createTweet(
-          "{{tid}}",
+          "{{Tid}}",
 
              document.getElementById('tweet'),
             {

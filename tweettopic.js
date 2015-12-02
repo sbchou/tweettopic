@@ -134,7 +134,7 @@ if (Meteor.isClient) {
           reader.onloadend = function (e) {
             var text = e.target.result;  
             var all = $.csv.toObjects(text);  
-            _.each(all, function (entry) {
+            _.each(all, function (entry) { 
               /*
               entry.label_ids = []; // add labels array
               entry.user_ids = [];
