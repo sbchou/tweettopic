@@ -50,7 +50,7 @@
 
     <!-- progress bar is always at the top -->
     <div class="progress">
-      <div class="progress-bar progress-bar-success" role="progressbar" aria-valuenow={{completeCount}}
+      <div class="progress-bar" role="progressbar" aria-valuenow={{completeCount}}
         aria-valuemin="0" aria-valuemax="100" style="width:{{percent_complete}}%">
         <span class>{{completeCount}}</span>
       </div>  
@@ -77,31 +77,14 @@
       <center>
         <h1>You're all done!</h1>
 
-        <p>You classified {{numTrue}} tweets as U.S. Election related, and {{numFalse}} tweets as unrelated.</p> 
+        <p>You marked {{numFalse}} out of {{completeCount}} tweets as incorrect.</p> 
 
-        <!--<h2><p>Summary:</p></h2>-->
+        <p>That's {{percentWrong}} %.</p> 
+    
          
-        <p>Was this tweet about the election?</p>
+        <h2><p>Corrections:</p></h2>
 
-        Your answer: 
-        {{#each results}}
-          {{> humancheck}}
-        {{/each}} 
-      
-        <br>
-        Sorting Hat:
-
-        {{#each machineResults}}
-          {{#if .}}
-            <input type="checkbox" disabled="disabled" checked="checked">  
-          {{else}}
-            <input type="checkbox" disabled="disabled">  
-          {{/if}}
-        {{/each}}       
-         
-        <h2><p>All tweets:</p></h2>
-
-         {{#each results}}
+         {{#each corrections}}
           {{> result}}
         {{/each}}
        
@@ -131,7 +114,7 @@
  
 <template name="tweet">
 
-  <center><h1> Is this tweet about {{Topic}} ?</h1></center>
+  <center><h1> Is this tweet about {{topic}} ?</h1></center>
 
   <ul class="tweet {{selected}}">    
     <script> 
@@ -139,7 +122,7 @@
 
         function (twttr) {
           twttr.widgets.createTweet(
-          "{{Tid}}",
+          "{{tid}}",
 
              document.getElementById('tweet'),
             {
@@ -170,14 +153,25 @@
 
 <template name="result"> 
 
-  <ul class="tweet {{selected}}">  
-    <span class="name">{{tweet_title}}</span>  
-    {{#if user_label}}
-      <span class="result">You said: Yes </span> 
-    {{else}}
-      <span class="result">You said: No </span> 
-    {{/if}}
-    <span class="result">Sorting hat is {{tweet_conf}}% sure this is about the Election </span>   
+  <ul class="tweet {{selected}}">    
+    <script> 
+      twttr.ready(
+
+        function (twttr) {
+          twttr.widgets.createTweet(
+          "{{Tid}}",
+
+             document.getElementById('tweet'),
+            {
+              theme: 'light'
+            }).then(function (el) {
+              console.log("Embedded a timeline.")
+            });
+        }
+      ); 
+    </script>   
+
+    <center><div id="tweet"></div></center> 
      
   </ul>
 </template>

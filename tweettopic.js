@@ -5,8 +5,8 @@ Tweets = new Mongo.Collection("tweets");
 Labels = new Mongo.Collection("labels");
 
 
-
 if (Meteor.isClient) { 
+ 
   var width = $(window).width() - 25; 
   $("#outer").width(width);
 
@@ -66,7 +66,7 @@ if (Meteor.isClient) {
     },
 
     allDone: function (){
-    return Tweets.find({'user_ids':{$ne : Meteor.userId()}, body:{$ne:''}}).count() === 0;
+    return Tweets.find({'user_ids':{$ne : Meteor.userId()}}).count() === 0;
     },
 
     selectedTweet: function () {
@@ -90,6 +90,13 @@ if (Meteor.isClient) {
       return Labels.find({'user_id':Meteor.userId(), user_label : 0}).count();
     },
 
+    percentWrong: function(){
+      var numFalse = Labels.find({'user_id':Meteor.userId(), user_label : 0}).count();
+      var total = Tweets.find({'user_ids': Meteor.userId()}).count();
+      var percent = Math.round((numFalse / total)*100);
+      return percent;
+    },
+
     //results for user!
     // show last 10
     // demo week where round = 10
@@ -100,26 +107,11 @@ if (Meteor.isClient) {
       var labels = Labels.find({'user_id': Meteor.userId()}); 
       return labels;
     },
-
-    //machine confidences
-    //show last 10
-    // demo week where round = 10
-    machineResults: function(){  
-      //var values = Labels.find({'user_id': Meteor.userId()}, {fields : {'tweet_conf':1}}, {$sort: { timestamp: -1 }, skip:0, limit: 10}).map(function(x) { return x.tweet_conf;});
-      var values = Labels.find({'user_id': Meteor.userId()}, {fields : {'tweet_conf':1}}).map(function(x) { return x.tweet_conf;});
  
-      // can't do list comprehensions
-      var bools = []
-      // map function still returns all, so i cut it here
-      for (var i = 0; i < values.length; i++) {
-           bools.push(values[i] > 50);
-      } 
-      return bools;
+    corrections: function(){
+      return Labels.find({'user_id':Meteor.userId(), user_label: 0},
+        {sort: { timestamp: -1 }, skip:0});
     }
-
-
-
-  
 
   });
 
@@ -179,9 +171,9 @@ if (Meteor.isClient) {
       Labels.insert({
         _id : id,
         tweet_id : Session.get("selectedTweet"), // tweet object
-        Tid : t.Tid,
-        text : t.Tweet,
-        machine_topic: t.Topic,
+        tid : t.tid,
+        text : t.text,
+        machine_topic: t.topic,
         //tweet_title: tweet_title[0],
         //tweet_conf: tweet_conf[0],
         user_id : Meteor.userId(),
@@ -211,9 +203,9 @@ if (Meteor.isClient) {
       Labels.insert({
         _id : id,
         tweet_id : Session.get("selectedTweet"), // tweet object
-        Tid : t.Tid,
-        text : t.Tweet,
-        machine_topic: t.Topic,
+        tid : t.tid,
+        text : t.text,
+        machine_topic: t.topic,
         //tweet_title: tweet_title[0],
         //tweet_conf: tweet_conf[0],
         user_id : Meteor.userId(),
@@ -258,8 +250,8 @@ if (Meteor.isServer) {
 Router.route('/csv', {
   where: 'server',
   action: function () {
-    var filename = 'meteor_dummydata.csv';
-    var fileData = "label_id,Tid, text, machine_topic, user_label\r\n";
+    var filename = 'labels.csv';
+    var fileData = "label_id,tid, text, machine_topic, user_label\r\n";
 
     var headers = {
       'Content-type': 'text/csv',
@@ -268,11 +260,15 @@ Router.route('/csv', {
     var records = Labels.find();
     // build a CSV string. Oversimplified. You'd have to escape quotes and commas.
     records.forEach(function(label) {
-      fileData += label._id + "," + label.Tid + "," + 
+      fileData += label._id + "," + label.tid + "," + 
                 label.text + "," + 
                 label.machine_topic + "," + label.user_label + "\r\n";
     });
     this.response.writeHead(200, headers);
     return this.response.end(fileData);
   }
+});
+
+Router.route('/', function () {
+  this.render('');
 });
