@@ -35,10 +35,17 @@
  
   </div>
 </body>
- 
+
+
+<template name="downloader">
+  <a href="{{pathFor 'csv'}}">Export as CSV</a>
+</template>
+
+
 
 <template name="leaderboard">
-     
+
+ 
   {{#if currentUser}} <!-- gotta be logged in -->
 
     <!-- progress bar is always at the top -->
@@ -54,6 +61,9 @@
         <input type="file" id="files" name="files[]" multiple />
         <output id="list"></output> 
     {{/if}} 
+
+
+    {{> downloader}}  
 
     {{#if noEntries}}
       <center>

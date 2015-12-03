@@ -52,7 +52,7 @@ if (Meteor.isClient) {
         return [];
       }
       else{      
-        Session.set("selectedArticle", p._id);   
+        Session.set("selectedTweet", p._id);   
         return [ p ];
       }
     },
@@ -69,8 +69,8 @@ if (Meteor.isClient) {
     return Tweets.find({'user_ids':{$ne : Meteor.userId()}, body:{$ne:''}}).count() === 0;
     },
 
-    selectedArticle: function () {
-      var tweet = Tweets.findOne(Session.get("selectedArticle"));
+    selectedTweet: function () {
+      var tweet = Tweets.findOne(Session.get("selectedTweet"));
  
       return tweet && tweet.title;
     },
@@ -173,22 +173,26 @@ if (Meteor.isClient) {
     'click .yes': function () {
 
       id = Date.now().toString().substr(4);
-      tweet_title = Tweets.find( {_id:Session.get("selectedArticle")}).map(function(x) { return x.title;});
-      tweet_conf = Tweets.find( {_id:Session.get("selectedArticle")}, {fields: {'confidence': 1}}).map(function(x) {return x.confidence;}); 
+
+      t = Tweets.findOne({_id:Session.get("selectedTweet")});
  
       Labels.insert({
         _id : id,
-        tweet_id : Session.get("selectedArticle"),
-        tweet_title: tweet_title[0],
-        tweet_conf: tweet_conf[0],
+        tweet_id : Session.get("selectedTweet"), // tweet object
+        Tid : t.Tid,
+        text : t.Tweet,
+        machine_topic: t.Topic,
+        //tweet_title: tweet_title[0],
+        //tweet_conf: tweet_conf[0],
         user_id : Meteor.userId(),
         timestamp : Date.now(),
         user_label: 1
 
       }); 
 
+
       //add this user and this label to the tweet
-      Tweets.update(Session.get("selectedArticle"),
+      Tweets.update(Session.get("selectedTweet"),
        {$push: {'label_ids': id, 'user_ids': Meteor.userId()}
       });
 
@@ -199,21 +203,19 @@ if (Meteor.isClient) {
     'click .no': function () {
 
       id = Date.now().toString().substr(4);
+      //tweet_title = Tweets.find( {_id:Session.get("selectedTweet")}).map(function(x) { return x.title;});
+      //tweet_conf = Tweets.find( {_id:Session.get("selectedTweet")}, {fields: {'confidence': 1}}).map(function(x) {return x.confidence;});
 
-      tweet_title = Tweets.find( {_id:Session.get("selectedArticle")}).map(function(x) { return x.title;});
-
-      console.log(tweet_title);
-
-      tweet_conf = Tweets.find( {_id:Session.get("selectedArticle")}, {fields: {'confidence': 1}}).map(function(x) {return x.confidence;});
-
-      console.log(tweet_conf);
-      
+      t = Tweets.findOne({_id:Session.get("selectedTweet")});
  
       Labels.insert({
         _id : id,
-        tweet_id : Session.get("selectedArticle"),
-        tweet_title: tweet_title[0],
-        tweet_conf: tweet_conf[0],
+        tweet_id : Session.get("selectedTweet"), // tweet object
+        Tid : t.Tid,
+        text : t.Tweet,
+        machine_topic: t.Topic,
+        //tweet_title: tweet_title[0],
+        //tweet_conf: tweet_conf[0],
         user_id : Meteor.userId(),
         timestamp : Date.now(),
         user_label: 0
@@ -221,7 +223,7 @@ if (Meteor.isClient) {
       }); 
 
       //add this user and this label to the tweet
-      Tweets.update(Session.get("selectedArticle"),
+      Tweets.update(Session.get("selectedTweet"),
        {$push: {'label_ids': id, 'user_ids': Meteor.userId()}
       });
 
@@ -231,7 +233,7 @@ if (Meteor.isClient) {
 
   Template.tweet.helpers({
     selected: function () {
-      return Session.equals("selectedArticle", this._id) ? "selected" : '';
+      return Session.equals("selectedTweet", this._id) ? "selected" : '';
     }
   });  
    
@@ -252,3 +254,25 @@ if (Meteor.isServer) {
       return Labels.find({});
     });
 }
+
+Router.route('/csv', {
+  where: 'server',
+  action: function () {
+    var filename = 'meteor_dummydata.csv';
+    var fileData = "label_id,Tid, text, machine_topic, user_label\r\n";
+
+    var headers = {
+      'Content-type': 'text/csv',
+      'Content-Disposition': "attachment; filename=" + filename
+    };
+    var records = Labels.find();
+    // build a CSV string. Oversimplified. You'd have to escape quotes and commas.
+    records.forEach(function(label) {
+      fileData += label._id + "," + label.Tid + "," + 
+                label.text + "," + 
+                label.machine_topic + "," + label.user_label + "\r\n";
+    });
+    this.response.writeHead(200, headers);
+    return this.response.end(fileData);
+  }
+});
