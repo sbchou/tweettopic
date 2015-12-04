@@ -44,10 +44,8 @@
 
 
 <template name="leaderboard">
-
  
   {{#if currentUser}} <!-- gotta be logged in -->
-
     <!-- progress bar is always at the top -->
     <div class="progress">
       <div class="progress-bar" role="progressbar" aria-valuenow={{completeCount}}
@@ -65,51 +63,54 @@
 
     {{> downloader}}  
 
-    {{#if noEntries}}
-      <center>
-        <h1>
-          Oops! Looks like you're out of tweets.
-        </h1> 
-      </center>
-    {{/if}} <!-- end if for noEntries -->
-    
-    {{#if allDone}}
-      <center>
-        <h1>You're all done!</h1>
+    {{#if allDone}} <!-- allDone --> 
 
-        <p>You marked {{numFalse}} out of {{completeCount}} tweets as incorrect.</p> 
+      {{#if noEntries}} 
+        <center>
+          <h1>
+            Oops! Looks like you're out of tweets. <br><br>
 
-        <p>That's {{percentWrong}} %.</p> 
-    
-         
-        <h2><p>Corrections:</p></h2>
+            {{#if isAdmin}}
+              Go upload some in CSV format. <br><br>
+              Fieldnames are: tid,text,topic
+            {{/if}}
+          </h1> 
+        </center>
 
-         {{#each corrections}}
-          {{> result}}
-        {{/each}}
+      {{else}} <!-- end allDone, upload --> 
+        <center>
+          <h1>You're all done!</h1>
+
+          <p>You marked {{numFalse}} out of {{completeCount}} tweets as incorrect.</p> 
+
+          <p>That's {{percentWrong}} %.</p> 
+      
+           
+          <h2><p>Corrections:</p></h2>
+
+          {{#each corrections}}
+            {{> result}}
+          {{/each}}
        
-      </center>
-
-    {{else}} <!-- allDone --> 
-      <!-- otherwise business as usual -->
-
-      {{#each tweets}}  
-
-        {{> tweet}}
-          <!--{{#if selectedArticle}}-->
+        </center> 
+      {{/if}}
  
-          <!--{{/if}}-->
-        {{else}}
-      {{/each}}   
-    {{/if}} 
+
+    {{else}} <!-- not allDone -->
+      {{#each tweets}}  
+        {{> tweet}}
+      {{/each}}
+    {{/if}}  
 
   {{else}} <!-- not logged in!-->
   <center>
     <h1>Welcome human!</h1>
-    <h2>Can you teach Sorting Hat about the election? </h2> 
+    <h2>Can you help our algorithms learn? </h2> 
   </center>
   {{/if}}<!-- end if for logged-in-->
 
+
+  
 </template>
  
 <template name="tweet">

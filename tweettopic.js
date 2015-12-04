@@ -58,7 +58,7 @@ if (Meteor.isClient) {
     },
 
     isAdmin: function(){
-      return (Meteor.user().profile['name'] === 'Sophie Chou');
+      return (Meteor.user().profile['name'] === 'Sophie Chou') || (Meteor.user().emails[0].address === 'soroush@mit.edu');
     },
  
     noEntries: function () {
