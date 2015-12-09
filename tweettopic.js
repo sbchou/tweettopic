@@ -58,7 +58,16 @@ if (Meteor.isClient) {
     },
 
     isAdmin: function(){
-      return (Meteor.user().profile['name'] === 'Sophie Chou') || (Meteor.user().emails[0].address === 'soroush@mit.edu');
+      if (Meteor.user().emails){
+        return (Meteor.user.emails[0].address === 'soroush@mit.edu');
+      }
+      else if (Meteor.user().profile){
+        return (Meteor.user().profile['name'] === 'Sophie Chou') ||
+        (Meteor.user().profile['name'] === 'Soroush Vosoughi');
+      }
+      else{
+        return false;
+      }
     },
  
     noEntries: function () {

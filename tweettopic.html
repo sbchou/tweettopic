@@ -88,7 +88,7 @@
            
           <h2><p>Corrections:</p></h2>
 
-          {{#each corrections}}
+          {{#each corrections}} 
             {{> result}}
           {{/each}}
        
@@ -154,13 +154,13 @@
 
 <template name="result"> 
 
-  <ul class="tweet {{selected}}">    
+  <ul class="tweet {{selected}}">  
     <script> 
       twttr.ready(
 
         function (twttr) {
           twttr.widgets.createTweet(
-          "{{Tid}}",
+          "{{tid}}",
 
              document.getElementById('tweet'),
             {
@@ -171,9 +171,10 @@
         }
       ); 
     </script>   
+    <center><div id="tweet"></div></center>  
 
-    <center><div id="tweet"></div></center> 
-     
-  </ul>
+  </ul> 
+  
+        You said this was not about {{machine_topic}}.
 </template>
  
